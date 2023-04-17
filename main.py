@@ -4,6 +4,7 @@ import MySQLdb.cursors
 import re
 app = Flask(__name__)
 
+
 # Change this to your secret key (can be anything, it's for extra protection)
 app.secret_key = 'your secret key'
 
