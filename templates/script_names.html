@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div>
+    <h2>Script Page</h2>
+    <a href="{{ url_for('xauusd') }}"><i class="script-xauusd"></i>XAUUSD</a>
+    <a href="{{ url_for('eurusd') }}"><i class="script-xauusd"></i>EURUSD</a>
+    <a href="{{ url_for('oil') }}"><i class="script-xauusd"></i>oil</a>
+
+</div>
+
+{% endblock %}

@@ -115,6 +115,35 @@ def profile():
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
+@app.route('/pythonlogin/script')
+def script():
+    if 'loggedin' in session:
+        return render_template('script_names.html')
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/pythonlogin/script/xauusd')
+def xauusd():
+    if 'loggedin' in session:
+        return render_template('xauusd.html')
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/pythonlogin/script/eurusd')
+def eurusd():
+    if 'loggedin' in session:
+        return render_template('eurusd.html')
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/pythonlogin/script/oil')
+def oil():
+    if 'loggedin' in session:
+        return render_template('oil.html')
+    else:
+        return redirect(url_for('login'))
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
