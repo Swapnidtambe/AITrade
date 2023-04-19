@@ -143,6 +143,13 @@ def oil():
     else:
         return redirect(url_for('login'))
 
+@app.route('/pythonlogin/subscription')
+def subscription():
+    if 'loggedin' in session:
+        return render_template('subscription.html')
+    else:
+        return redirect(url_for('login'))
+
 
 
 if __name__ == "__main__":
