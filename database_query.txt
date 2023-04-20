@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS `user_accounts` (
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `subscription` int(3) DEFAULT 0,
+  `start_date` DATE,
+  `end_date` DATE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 

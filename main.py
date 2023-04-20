@@ -2,17 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+from datetime import date
+
+from config import Config
+
 app = Flask(__name__)
-
-
-# Change this to your secret key (can be anything, it's for extra protection)
-app.secret_key = 'your secret key'
-
-# Enter your database connection details below
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Swappy969696'
-app.config['MYSQL_DB'] = 'AItrade'
+app.config.from_object(Config)
 
 # Intialize MySQL
 mysql = MySQL(app)
@@ -38,6 +33,9 @@ def login():
             session['loggedin'] = True
             session['id'] = account['id']
             session['username'] = account['username']
+
+
+
             # Redirect to home page
             return redirect(url_for('home'))
         else:
@@ -82,7 +80,7 @@ def register():
             msg = 'Please fill out the form!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            cursor.execute('INSERT INTO user_accounts VALUES (NULL, %s, %s, %s)', (username, password, email,))
+            cursor.execute('INSERT INTO user_accounts VALUES (NULL, %s, %s, %s,NULL,NULL)', (username, password, email,))
             mysql.connection.commit()
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
@@ -125,28 +123,68 @@ def script():
 @app.route('/pythonlogin/script/xauusd')
 def xauusd():
     if 'loggedin' in session:
-        return render_template('xauusd.html')
+        today = date.today()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM user_accounts WHERE id = %s', (session['id'],))
+        # Fetch one record and r*eturn result
+        end_date = cursor.fetchone()
+        end_date = end_date['end_date']
+
+        if end_date is None or end_date < today:
+            return "not subscribed"
+
+        else:
+            return render_template('xauusd.html')
     else:
         return redirect(url_for('login'))
 
 @app.route('/pythonlogin/script/eurusd')
 def eurusd():
     if 'loggedin' in session:
-        return render_template('eurusd.html')
+        today = date.today()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM user_accounts WHERE id = %s', (session['id'],))
+        # Fetch one record and r*eturn result
+        end_date = cursor.fetchone()
+        end_date = end_date['end_date']
+
+        if end_date is None or end_date < today:
+            return "not subscribed"
+
+        else:
+            return render_template('eurusd.html')
     else:
         return redirect(url_for('login'))
 
 @app.route('/pythonlogin/script/oil')
 def oil():
     if 'loggedin' in session:
-        return render_template('oil.html')
+        today = date.today()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM user_accounts WHERE id = %s', (session['id'],))
+        # Fetch one record and r*eturn result
+        end_date = cursor.fetchone()
+        end_date = end_date['end_date']
+
+        if end_date is None or end_date < today:
+            return "not subscribed"
+
+        else:
+            return render_template('oil.html')
     else:
         return redirect(url_for('login'))
 
 @app.route('/pythonlogin/subscription')
 def subscription():
     if 'loggedin' in session:
-        return render_template('subscription.html')
+        return render_template('subscription.html',subscription = session["subscription"])
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/pythonlogin/buysubscription')
+def buysubscription():
+    if 'loggedin' in session:
+        return render_template('buysubscription.html')
     else:
         return redirect(url_for('login'))
 
