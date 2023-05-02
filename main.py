@@ -1,27 +1,38 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+from app_property import AppProperty
+import jwt
+import datetime
 from datetime import date
 
-from config import Config
 
+from config import Config
+app_property = AppProperty()
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config['SECRET_KEY'] = 'my_secret_key'  # Replace with your own secret key
+app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=1)  # Set token expiration time
 
 # Intialize MySQL
 mysql = MySQL(app)
 
+# In-memory store for blacklisted tokens (i.e. tokens that have been logged out)
+blacklist = set()
+
 # http://localhost:5000/pythonlogin/ - the following will be our login page, which will use both GET and POST requests
-@app.route('/pythonlogin/', methods=['GET', 'POST'])
+@app.route('/ai_trade/login/', methods=['POST'])
 def login():
     # Output message if something goes wrong...
     msg = ''
+    response = {}
     # Check if "username" and "password" POST requests exist (user submitted form)
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+    if request.method == 'POST':
         # Create variables for easy access
-        username = request.form['username']
-        password = request.form['password']
+        data = request.get_json()
+        username = data['username']
+        password = data['password']
         # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute('SELECT * FROM user_accounts WHERE username = %s AND password = %s', (username, password,))
@@ -29,164 +40,406 @@ def login():
         account = cursor.fetchone()
         # If account exists in accounts table in out database
         if account:
-            # Create session data, we can access this data in other routes
-            session['loggedin'] = True
-            session['id'] = account['id']
-            session['username'] = account['username']
-
-
-
+            payload = {'username': username, 'exp': datetime.datetime.utcnow() + app.config['JWT_EXPIRATION_DELTA']}
+            token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+            response['data'] = {'token': token}
+            response['errorCode'] = ''
+            response['errorMessage'] = ''
+            response['status'] = 'OK'
             # Redirect to home page
-            return redirect(url_for('home'))
+            return response
         else:
             # Account doesnt exist or username/password incorrect
-            msg = 'Incorrect username/password!'
-    # Show the login form with message (if any)
-    return render_template('index.html', msg=msg)
+            msg = app_property.get_message('101')
+            response['data'] = account
+            response['errorCode'] = '101'
+            response['errorMessage'] = msg
+            response['status'] = 'FAIL'
+            # Show the login form with message (if any)
+        return response
+
 
 # http://localhost:5000/python/logout - this will be the logout page
-@app.route('/pythonlogin/logout')
+@app.route('/ai_trade/logout', methods=['POST'])
 def logout():
-    # Remove session data, this will log the user out
-   session.pop('loggedin', None)
-   session.pop('id', None)
-   session.pop('username', None)
-   # Redirect to login page
-   return redirect(url_for('login'))
+    data = request.get_json()
+    token = data['token']
 
-# http://localhost:5000/pythinlogin/register - this will be the registration page, we need to use both GET and POST requests
-@app.route('/pythonlogin/register', methods=['GET', 'POST'])
+    blacklist.add(token)
+    return jsonify({'message': 'Token has been logged out'})
+
+
+
+@app.route('/ai_trade/register', methods=['POST'])
 def register():
-    # Output message if something goes wrong...
-    msg = ''
+    response = {}
     # Check if "username", "password" and "email" POST requests exist (user submitted form)
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
+    if request.method == 'POST':
+        data = request.get_json()
         # Create variables for easy access
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
+        username = data['username']
+        password = data['password']
+        email = data['email']
         # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute('SELECT * FROM user_accounts WHERE username = %s', (username,))
         account = cursor.fetchone()
         # If account exists show error and validation checks
         if account:
-            msg = 'Account already exists!'
+            response['data'] = ''
+            response['errorMessage'] = app_property.get_message('102')
+            response['errorCode'] = '102'
+            response['status'] = 'FAIL'
+            return response
+
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Invalid email address!'
+            response['data'] = ''
+            response['errorMessage'] = app_property.get_message('103')
+            response['errorCode'] = '103'
+            response['status'] = 'FAIL'
+            return response
+
         elif not re.match(r'[A-Za-z0-9]+', username):
-            msg = 'Username must contain only characters and numbers!'
+            response['data'] = ''
+            response['errorMessage'] = app_property.get_message('104')
+            response['errorCode'] = '104'
+            response['status'] = 'FAIL'
+            return response
+
         elif not username or not password or not email:
-            msg = 'Please fill out the form!'
+            response['data'] = ''
+            response['errorMessage'] = app_property.get_message('105')
+            response['errorCode'] = '105'
+            response['status'] = 'FAIL'
+            return response
+
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             cursor.execute('INSERT INTO user_accounts VALUES (NULL, %s, %s, %s,NULL,NULL)', (username, password, email,))
             mysql.connection.commit()
-            msg = 'You have successfully registered!'
-    elif request.method == 'POST':
-        # Form is empty... (no POST data)
-        msg = 'Please fill out the form!'
-    # Show registration form with message (if any)
-    return render_template('register.html', msg=msg)
+            response['data'] = 'You have successfully registered!'
+            response['errorMessage'] = ''
+            response['errorCode'] = ''
+            response['status'] = 'OK'
+            return response
+
+
+
 
 # http://localhost:5000/pythinlogin/home - this will be the home page, only accessible for loggedin users
-@app.route('/pythonlogin/home')
-def home():
-    # Check if user is loggedin
-    if 'loggedin' in session:
-        # User is loggedin show them the home page
-        return render_template('home.html', username=session['username'])
-    # User is not loggedin redirect to login page
-    return redirect(url_for('login'))
+@app.route('/ai_trade/home/ai_summury', methods=['GET'])
+def ai_summury():
+    response = {}
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        response["data"] = ''
+        response['errorMessage'] = 'Authorization header is missing'
+        response['errorCode'] = '107'
+        response['status'] = 'FAIL'
+        return response
+    parts = auth_header.split()
+    if parts[0].lower() != 'bearer':
+        response["data"] = ''
+        response['errorMessage'] = 'Invalid token format'
+        response['errorCode'] = '108'
+        response['status'] = 'FAIL'
+        return response
+    token = parts[1]
+    if token in blacklist:
+        response["data"] = ''
+        response['errorMessage'] = 'Token has been logged out'
+        response['errorCode'] = '109'
+        response['status'] = 'FAIL'
+        return response
+    try:
+        payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
+        response['data'] = 'this is summary of forex market news'
+        response['errorMessage'] = ''
+        response['errorCode'] = ''
+        response['status'] = 'OK'
+        return response
+    except jwt.ExpiredSignatureError:
+        response['data'] = ''
+        response['errorMessage'] = 'Token has expired'
+        response['errorCode'] = '110'
+        response['status'] = 'FAIL'
+        return response
+    except jwt.InvalidTokenError:
+        response['data'] = ''
+        response['errorMessage'] = 'Invalid token'
+        response['errorCode'] = '111'
+        response['status'] = 'FAIL'
+        return response
+
 
 # http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
-@app.route('/pythonlogin/profile')
+@app.route('/ai_trade/profile', methods=['GET'])
 def profile():
-    # Check if user is loggedin
-    if 'loggedin' in session:
+    response = {}
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        response["data"] = ''
+        response['errorMessage'] = 'Authorization header is missing'
+        response['errorCode'] = '107'
+        response['status'] = 'FAIL'
+        return response
+    parts = auth_header.split()
+    if parts[0].lower() != 'bearer':
+        response["data"] = ''
+        response['errorMessage'] = 'Invalid token format'
+        response['errorCode'] = '108'
+        response['status'] = 'FAIL'
+        return response
+    token = parts[1]
+    if token in blacklist:
+        response["data"] = ''
+        response['errorMessage'] = 'Token has been logged out'
+        response['errorCode'] = '109'
+        response['status'] = 'FAIL'
+        return response
+    try:
+        payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
+        username = payload['username']
         # We need all the account info for the user so we can display it on the profile page
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM user_accounts WHERE id = %s', (session['id'],))
+        cursor.execute('SELECT * FROM user_accounts WHERE username = %s', (username,))
         account = cursor.fetchone()
-        # Show the profile page with account info
-        return render_template('profile.html', account=account)
-    # User is not loggedin redirect to login page
-    return redirect(url_for('login'))
+        response['data'] = account
+        response['errorMessage'] = ''
+        response['errorCode'] = ''
+        response['status'] = 'OK'
+        return response
+    except jwt.ExpiredSignatureError:
+        response['data'] = ''
+        response['errorMessage'] = 'Token has expired'
+        response['errorCode'] = '110'
+        response['status'] = 'FAIL'
+        return response
+    except jwt.InvalidTokenError:
+        response['data'] = ''
+        response['errorMessage'] = 'Invalid token'
+        response['errorCode'] = '111'
+        response['status'] = 'FAIL'
+        return response
 
-@app.route('/pythonlogin/script')
+
+@app.route('/ai_trade/script')
 def script():
-    if 'loggedin' in session:
-        return render_template('script_names.html')
-    else:
-        return redirect(url_for('login'))
+    response = {}
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        response["data"] = ''
+        response['errorMessage'] = 'Authorization header is missing'
+        response['errorCode'] = '107'
+        response['status'] = 'FAIL'
+        return response
+    parts = auth_header.split()
+    if parts[0].lower() != 'bearer':
+        response["data"] = ''
+        response['errorMessage'] = 'Invalid token format'
+        response['errorCode'] = '108'
+        response['status'] = 'FAIL'
+        return response
+    token = parts[1]
+    if token in blacklist:
+        response["data"] = ''
+        response['errorMessage'] = 'Token has been logged out'
+        response['errorCode'] = '109'
+        response['status'] = 'FAIL'
+        return response
+    try:
+        payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
+        msg = "Please select the following script: GOLD, EURO, JPY"
+        response['data'] = msg
+        response['errorMessage'] = ''
+        response['errorCode'] = ''
+        response['status'] = 'OK'
+        return response
+    except jwt.ExpiredSignatureError:
+        response['data'] = ''
+        response['errorMessage'] = 'Token has expired'
+        response['errorCode'] = '110'
+        response['status'] = 'FAIL'
+        return response
+    except jwt.InvalidTokenError:
+        response['data'] = ''
+        response['errorMessage'] = 'Invalid token'
+        response['errorCode'] = '111'
+        response['status'] = 'FAIL'
+        return response
 
-@app.route('/pythonlogin/script/xauusd')
+@app.route('/ai_trade/script/gold')
 def xauusd():
-    if 'loggedin' in session:
-        today = date.today()
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM user_accounts WHERE id = %s', (session['id'],))
-        # Fetch one record and r*eturn result
-        end_date = cursor.fetchone()
-        end_date = end_date['end_date']
+    response = {}
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        response["data"] = ''
+        response['errorMessage'] = 'Authorization header is missing'
+        response['errorCode'] = '107'
+        response['status'] = 'FAIL'
+        return response
+    parts = auth_header.split()
+    if parts[0].lower() != 'bearer':
+        response["data"] = ''
+        response['errorMessage'] = 'Invalid token format'
+        response['errorCode'] = '108'
+        response['status'] = 'FAIL'
+        return response
+    token = parts[1]
+    if token in blacklist:
+        response["data"] = ''
+        response['errorMessage'] = 'Token has been logged out'
+        response['errorCode'] = '109'
+        response['status'] = 'FAIL'
+        return response
+    try:
+        payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
+        msg = "This is the XAUUSD Signal"
+        response['data'] = msg
+        response['errorMessage'] = ''
+        response['errorCode'] = ''
+        response['status'] = 'OK'
+        return response
+    except jwt.ExpiredSignatureError:
+        response['data'] = ''
+        response['errorMessage'] = 'Token has expired'
+        response['errorCode'] = '110'
+        response['status'] = 'FAIL'
+        return response
+    except jwt.InvalidTokenError:
+        response['data'] = ''
+        response['errorMessage'] = 'Invalid token'
+        response['errorCode'] = '111'
+        response['status'] = 'FAIL'
+        return response
 
-        if end_date is None or end_date < today:
-            return "not subscribed"
-
-        else:
-            return render_template('xauusd.html')
-    else:
-        return redirect(url_for('login'))
-
-@app.route('/pythonlogin/script/eurusd')
+@app.route('/ai_trade/script/euro')
 def eurusd():
-    if 'loggedin' in session:
-        today = date.today()
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM user_accounts WHERE id = %s', (session['id'],))
-        # Fetch one record and r*eturn result
-        end_date = cursor.fetchone()
-        end_date = end_date['end_date']
+    response = {}
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        response["data"] = ''
+        response['errorMessage'] = 'Authorization header is missing'
+        response['errorCode'] = '107'
+        response['status'] = 'FAIL'
+        return response
+    parts = auth_header.split()
+    if parts[0].lower() != 'bearer':
+        response["data"] = ''
+        response['errorMessage'] = 'Invalid token format'
+        response['errorCode'] = '108'
+        response['status'] = 'FAIL'
+        return response
+    token = parts[1]
+    if token in blacklist:
+        response["data"] = ''
+        response['errorMessage'] = 'Token has been logged out'
+        response['errorCode'] = '109'
+        response['status'] = 'FAIL'
+        return response
+    try:
+        payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
+        msg = "This is the EUR/USD Signal"
+        response['data'] = msg
+        response['errorMessage'] = ''
+        response['errorCode'] = ''
+        response['status'] = 'OK'
+        return response
+    except jwt.ExpiredSignatureError:
+        response['data'] = ''
+        response['errorMessage'] = 'Token has expired'
+        response['errorCode'] = '110'
+        response['status'] = 'FAIL'
+        return response
+    except jwt.InvalidTokenError:
+        response['data'] = ''
+        response['errorMessage'] = 'Invalid token'
+        response['errorCode'] = '111'
+        response['status'] = 'FAIL'
+        return response
 
-        if end_date is None or end_date < today:
-            return "not subscribed"
+@app.route('/ai_trade/script/jpy')
+def USDJPY():
+    response = {}
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        response["data"] = ''
+        response['errorMessage'] = 'Authorization header is missing'
+        response['errorCode'] = '107'
+        response['status'] = 'FAIL'
+        return response
+    parts = auth_header.split()
+    if parts[0].lower() != 'bearer':
+        response["data"] = ''
+        response['errorMessage'] = 'Invalid token format'
+        response['errorCode'] = '108'
+        response['status'] = 'FAIL'
+        return response
+    token = parts[1]
+    if token in blacklist:
+        response["data"] = ''
+        response['errorMessage'] = 'Token has been logged out'
+        response['errorCode'] = '109'
+        response['status'] = 'FAIL'
+        return response
+    try:
+        payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
+        msg = "This is the USD/JPY Signal"
+        response['data'] = msg
+        response['errorMessage'] = ''
+        response['errorCode'] = ''
+        response['status'] = 'OK'
+        return response
+    except jwt.ExpiredSignatureError:
+        response['data'] = ''
+        response['errorMessage'] = 'Token has expired'
+        response['errorCode'] = '110'
+        response['status'] = 'FAIL'
+        return response
+    except jwt.InvalidTokenError:
+        response['data'] = ''
+        response['errorMessage'] = 'Invalid token'
+        response['errorCode'] = '111'
+        response['status'] = 'FAIL'
+        return response
 
-        else:
-            return render_template('eurusd.html')
-    else:
-        return redirect(url_for('login'))
-
-@app.route('/pythonlogin/script/oil')
-def oil():
-    if 'loggedin' in session:
-        today = date.today()
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM user_accounts WHERE id = %s', (session['id'],))
-        # Fetch one record and r*eturn result
-        end_date = cursor.fetchone()
-        end_date = end_date['end_date']
-
-        if end_date is None or end_date < today:
-            return "not subscribed"
-
-        else:
-            return render_template('oil.html')
-    else:
-        return redirect(url_for('login'))
-
-@app.route('/pythonlogin/subscription')
+@app.route('/ai-trade/subscription')
 def subscription():
     if 'loggedin' in session:
-        return render_template('subscription.html',subscription = session["subscription"])
+        return render_template('subscription.html',subscription = session['end_date'])
     else:
         return redirect(url_for('login'))
 
-@app.route('/pythonlogin/buysubscription')
+@app.route('/ai-trade/buysubscription')
 def buysubscription():
     if 'loggedin' in session:
         return render_template('buysubscription.html')
     else:
         return redirect(url_for('login'))
+
+@app.route('/protected', methods=['GET'])
+def protected():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({'message': 'Authorization header is missing'}), 401
+    parts = auth_header.split()
+    if parts[0].lower() != 'bearer':
+        return jsonify({'message': 'Invalid token format'}), 401
+    token = parts[1]
+    if token in blacklist:
+        return jsonify({'message': 'Token has been logged out'}), 401
+    try:
+        payload = jwt.decode(token,'my_secret_key',algorithms='HS256')
+
+        # user_id = payload['id']
+        username = payload['username']
+        return username
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token has expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token'}), 401
+
+
 
 
 
