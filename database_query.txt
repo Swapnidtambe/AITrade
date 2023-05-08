@@ -11,6 +11,13 @@ CREATE TABLE IF NOT EXISTS `user_accounts` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
+CREATE TABLE summary (
+
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    currency varchar(255) ,
+    summary TEXT
+);
+INSERT INTO `summary` (`id`, `currency`, `summary`) VALUES (1, 'GOLD', 'The trend of the Gold price is not both.');
 
 INSERT INTO `user_accounts` (`id`, `username`, `password`, `email`) VALUES (1, 'test', 'test', 'test@test.com');
 

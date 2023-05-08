@@ -7,6 +7,12 @@ import jwt
 import datetime
 from datetime import date
 
+from open_ai import predict_trend
+prediction = predict_trend()
+
+
+
+
 
 from config import Config
 app_property = AppProperty()
@@ -20,6 +26,10 @@ mysql = MySQL(app)
 
 # In-memory store for blacklisted tokens (i.e. tokens that have been logged out)
 blacklist = set()
+
+
+
+
 
 # http://localhost:5000/pythonlogin/ - the following will be our login page, which will use both GET and POST requests
 @app.route('/ai_trade/login/', methods=['POST'])
@@ -42,7 +52,7 @@ def login():
         if account:
             payload = {'username': username, 'exp': datetime.datetime.utcnow() + app.config['JWT_EXPIRATION_DELTA']}
             token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-            response['data'] = {'token': token}
+            response['data'] = [{'token': token}]
             response['errorCode'] = ''
             response['errorMessage'] = ''
             response['status'] = 'OK'
@@ -294,7 +304,12 @@ def xauusd():
         return response
     try:
         payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
-        msg = "This is the XAUUSD Signal"
+
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT summary FROM summary WHERE currency = %s', ('GOLD',))
+        account = cursor.fetchone()
+
+        msg = account
         response['data'] = msg
         response['errorMessage'] = ''
         response['errorCode'] = ''
@@ -444,7 +459,7 @@ def protected():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0',port=5000, debug=True)
 
 
 

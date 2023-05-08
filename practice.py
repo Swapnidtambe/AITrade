@@ -1,1 +1,0 @@
-#its file use to practice python code

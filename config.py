@@ -3,5 +3,5 @@ class Config:
     SECRET_KEY = 'your secret key'
     MYSQL_HOST = 'localhost'
     MYSQL_USER = 'root'
-    MYSQL_PASSWORD = 'Swappy969696'
-    MYSQL_DB = 'AItrade'
+    MYSQL_PASSWORD = 'Sw@ppy969696'
+    MYSQL_DB = 'aitrade'
