@@ -12,7 +12,7 @@ def store_data():
     db.execute(query, (text_data,))
     db.disconnect()
 
-schedule.every(5).seconds.do(store_data)
+schedule.every(1).minutes.do(store_data)
 
 while True:
     schedule.run_pending()
