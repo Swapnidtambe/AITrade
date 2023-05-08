@@ -7,13 +7,6 @@ import jwt
 import datetime
 from datetime import date
 
-from open_ai import predict_trend
-prediction = predict_trend()
-
-
-
-
-
 from config import Config
 app_property = AppProperty()
 app = Flask(__name__)
@@ -307,10 +300,9 @@ def xauusd():
 
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute('SELECT summary FROM summary WHERE currency = %s', ('GOLD',))
-        account = cursor.fetchone()
-
-        msg = account
-        response['data'] = msg
+        summury = cursor.fetchone()
+        
+        response['data'] = summury
         response['errorMessage'] = ''
         response['errorCode'] = ''
         response['status'] = 'OK'
