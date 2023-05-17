@@ -297,16 +297,27 @@ def xauusd():
         return response
     try:
         payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
-
+        username = payload['username']
+        # We need all the account info for the user so we can display it on the profile page
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT summary FROM summary WHERE currency = %s', ('GOLD',))
-        summury = cursor.fetchone()
-        
-        response['data'] = summury
-        response['errorMessage'] = ''
-        response['errorCode'] = ''
-        response['status'] = 'OK'
-        return response
+        cursor.execute('SELECT end_date FROM user_accounts WHERE username = %s', (username,))
+        date = cursor.fetchone()
+        end_date = date["end_date"]
+        if end_date <= datetime.date.today():
+            response['data'] = ""
+            response['errorMessage'] = 'Subscription Expired'
+            response['errorCode'] = '112'
+            response['status'] = 'FAIL'
+            return response
+        else:
+            cursor.execute('SELECT summary FROM summary WHERE currency = %s', ('GOLD',))
+            summury = cursor.fetchone()
+
+            response['data'] = summury
+            response['errorMessage'] = ''
+            response['errorCode'] = ''
+            response['status'] = 'OK'
+            return response
     except jwt.ExpiredSignatureError:
         response['data'] = ''
         response['errorMessage'] = 'Token has expired'

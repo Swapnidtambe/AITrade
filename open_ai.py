@@ -2,11 +2,11 @@ import openai
 def predict_trend():
     from forex_news_list import news_list
     news_list = news_list()
-    openai.api_key = "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"
+    openai.api_key = "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"
     model_engine = "text-davinci-002"
     prompt = (f"Given the following forex related news articles with time :\n\n"
               f"{news_list}\n\n"
-              f"Predict the trend of the Gold price for intraday (bullish or bearish or not both).\n\n")
+              f"Predict the correct trend of the Gold price for intraday (bullish or bearish or not both) and give the resion summury.\n\n")
 
     response = openai.Completion.create(
         engine=model_engine,
@@ -18,3 +18,6 @@ def predict_trend():
     )
     prediction = response.choices[0].text.strip()
     return prediction
+
+a = predict_trend()
+print(a)
