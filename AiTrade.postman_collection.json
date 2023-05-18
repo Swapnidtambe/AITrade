@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5c995a1f-f389-4213-abda-c14ae1a93b46",
+		"_postman_id": "9dacff67-68f8-4827-b59c-def0f54b60fc",
 		"name": "AiTrade",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -18,7 +18,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\":\"swappy\",\r\n    \"password\":\"swappy\"\r\n}"
+					"raw": "{\r\n    \"username\":\"admin\",\r\n    \"password\":\"Swappy969696\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/login/",
@@ -49,7 +49,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\":\"swappy196\",\r\n    \"password\":\"swappy96\",\r\n    \"email\":\"swappy961@gmail.com\"\r\n}"
+					"raw": "{\r\n    \"username\":\"swappy196\",\r\n    \"password\":\"swappy96\",\r\n    \"email\":\"swappy961@gmail.com\",\r\n    \"mobile\":\"9527701111\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/register",
@@ -119,7 +119,7 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InN3YXBweSIsImV4cCI6MTY4MzExMjI4NH0.xNmMb-zzoDzCwFEtmYqKiihyksKgJ78dAB4wvAjnWlU",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJTd2FwcHk5Njk2OTYiLCJleHAiOjE2ODQ1MDczMTF9.kEYqsyeXFyVZABOjWFRXiNJ1I3h73EWpasLGqsHZGqU",
 						"type": "default"
 					}
 				],
@@ -133,6 +133,42 @@
 					"path": [
 						"ai_trade",
 						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "admin",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJTd2FwcHk5Njk2OTYiLCJleHAiOjE2ODQ1MTU1NDd9.Y3f3XzHqrN2hw6f0dqTMEiTmem7DtxweW5zTa46k5KI",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"start_date\":\"2023-04-22\",\r\n    \"end_date\":\"2023-06-23\",\r\n    \"id\":\"1\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/ai_trade/admin/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"ai_trade",
+						"admin",
+						"update"
 					]
 				}
 			},
@@ -183,7 +219,7 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InN3YXBweSIsImV4cCI6MTY4MzExMjI4NH0.xNmMb-zzoDzCwFEtmYqKiihyksKgJ78dAB4wvAjnWlU",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJwYXNzd29yZCI6InRlc3QiLCJleHAiOjE2ODQ1MTU1MTV9.F0f0kqEzTgivdm5I9pfWhWJZg7kUUHD81dekPy47D8I",
 						"type": "default"
 					}
 				],
@@ -282,7 +318,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InN3YXBweSIsImV4cCI6MTY4MzExMjI4NH0.xNmMb-zzoDzCwFEtmYqKiihyksKgJ78dAB4wvAjnWlU\"\r\n}"
+					"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJTd2FwcHk5Njk2OTYiLCJleHAiOjE2ODQ1MDY3MTh9.wm0Krrbm9hCFrLiVsEwuCgvWqzq4VKqfMNG05kQU6vM\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/logout",

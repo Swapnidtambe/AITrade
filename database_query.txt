@@ -2,22 +2,24 @@ CREATE DATABASE IF NOT EXISTS `AItrade` DEFAULT CHARACTER SET utf8 COLLATE utf8_
 USE `AItrade`;
 
 CREATE TABLE IF NOT EXISTS `user_accounts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  ``id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `start_date` DATE,
-  `end_date` DATE,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `mobile_no` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 CREATE TABLE summary (
-
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    currency varchar(255) ,
-    summary TEXT
-);
+    `id` int NOT NULL AUTO_INCREMENT,
+    `currency` varchar(255) DEFAULT NULL,
+    `summary` text,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
 INSERT INTO `summary` (`id`, `currency`, `summary`) VALUES (1, 'GOLD', 'The trend of the Gold price is not both.');
 
-INSERT INTO `user_accounts` (`id`, `username`, `password`, `email`) VALUES (1, 'test', 'test', 'test@test.com');
+INSERT INTO `user_accounts` (`id`, `username`, `password`, `email`,`mobile_no`) VALUES (1, 'test', 'test', 'test@test.com','9854675467');
+INSERT INTO `user_accounts` (`id`, `username`, `password`, `email`,`mobile_no`) VALUES (2, 'admin', 'Swappy969696', 'admin@test.com','9855674523');
 

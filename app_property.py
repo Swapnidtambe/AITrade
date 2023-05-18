@@ -12,6 +12,9 @@ class AppProperty:
                         '110': 'Token has expired',
                         '111': 'Invalid token',
                         '112': 'Subscription Expired',
+                        '113': 'subscription not updated',
+
+
 
 
                         }
