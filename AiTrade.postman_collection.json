@@ -18,7 +18,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\":\"admin\",\r\n    \"password\":\"Swappy969696\"\r\n}"
+					"raw": "{\r\n    \"mobile_no\":\"4567435645\",\r\n    \"password\":\"Swap\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/login/",
@@ -49,7 +49,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\":\"swappy196\",\r\n    \"password\":\"swappy96\",\r\n    \"email\":\"swappy961@gmail.com\",\r\n    \"mobile\":\"9527701111\"\r\n}"
+					"raw": "{\r\n    \"name\":\"swappsy396\",\r\n    \"password\":\"swappy96\",\r\n    \"email\":\"swappy@gmail.com\",\r\n    \"mobile\":\"9277012112\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/register",
@@ -119,7 +119,7 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJTd2FwcHk5Njk2OTYiLCJleHAiOjE2ODQ1MDczMTF9.kEYqsyeXFyVZABOjWFRXiNJ1I3h73EWpasLGqsHZGqU",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGVfbm8iOiI5NTI3NzAxMTExIiwicGFzc3dvcmQiOiJTd2FwcHk5Njk2OTYiLCJleHAiOjE2ODQ1OTczNTF9.UfhsV5UVCAohTJfxJDh_wx9PEiEO32Emzr4KPVtFWCs",
 						"type": "default"
 					}
 				],
@@ -150,13 +150,49 @@
 					},
 					{
 						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGVfbm8iOiI5NTI3NzAxMTExIiwicGFzc3dvcmQiOiJTd2FwcHk5Njk2OTYiLCJleHAiOjE2ODQ1OTczNTF9.UfhsV5UVCAohTJfxJDh_wx9PEiEO32Emzr4KPVtFWCs",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"start_date\":\"2023-04-22\",\r\n    \"end_date\":\"2023-04-23\",\r\n    \"mobile_no\":\"4567435645\"\r\n\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/ai_trade/admin/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"ai_trade",
+						"admin",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user_profile_update",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					},
+					{
+						"key": "Authorization",
 						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJTd2FwcHk5Njk2OTYiLCJleHAiOjE2ODQ1MTU1NDd9.Y3f3XzHqrN2hw6f0dqTMEiTmem7DtxweW5zTa46k5KI",
 						"type": "default"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"start_date\":\"2023-04-22\",\r\n    \"end_date\":\"2023-06-23\",\r\n    \"id\":\"1\"\r\n}"
+					"raw": "{\r\n    \"mobile_no\":\"2023-04-22\",\r\n    \"old_pass\":\"2023-06-23\",\r\n    \"new_pass\":\"8765786543\",\r\n    \"email\":\"dffg@fgm.com\",\r\n    \"name\": \"gajanan\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/admin/update",
@@ -219,7 +255,7 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJwYXNzd29yZCI6InRlc3QiLCJleHAiOjE2ODQ1MTU1MTV9.F0f0kqEzTgivdm5I9pfWhWJZg7kUUHD81dekPy47D8I",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGVfbm8iOiI0NTY3NDM1NjQ1IiwicGFzc3dvcmQiOiJTd2FwIiwiZXhwIjoxNjg0NjAyODg0fQ.lb9TvuYPMAQumNxuaM6AjBTZeIYakFCdflXG3G3892s",
 						"type": "default"
 					}
 				],
@@ -318,7 +354,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJTd2FwcHk5Njk2OTYiLCJleHAiOjE2ODQ1MDY3MTh9.wm0Krrbm9hCFrLiVsEwuCgvWqzq4VKqfMNG05kQU6vM\"\r\n}"
+					"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGVfbm8iOiI0NTY3NDM1NjQ1IiwicGFzc3dvcmQiOiJTd2FwIiwiZXhwIjoxNjg0NjAyODg0fQ.lb9TvuYPMAQumNxuaM6AjBTZeIYakFCdflXG3G3892s\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/logout",

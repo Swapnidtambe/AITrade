@@ -3,7 +3,7 @@ class AppProperty:
         self.my_dict = {'101': 'Incorrect username/password!',
                         '102': 'Account already exists!',
                         '103': 'Invalid email address!',
-                        '104': 'Username must contain only characters and numbers!',
+                        '104': 'Mobile number is not a valid',
                         '105': 'Please fill out the form!',
                         '106': 'You have not logged in',
                         '107': 'Authorization header is missing',
