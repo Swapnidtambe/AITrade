@@ -290,9 +290,14 @@ def admin():
     if request.method == 'POST':
         data = request.get_json()
         # Create variables for easy access
+        name = data['name']
+        old_mobile_no = data['old_mobile_no']
+        mobile = data['mobile_no']
+        email = data['email']
         start_date = data['start_date']
         end_date = data['end_date']
-        mobile = data['mobile_no']
+
+
         auth_header = request.headers.get('Authorization')
         if not auth_header:
             response["data"] = ''
@@ -326,8 +331,8 @@ def admin():
             pas = account["password"]
             if mobile_no == '9527701111' and pas == 'Swappy969696':
                 try:
-                    cursor.execute('UPDATE user_accounts SET start_date = %s, end_date = %s WHERE mobile_no = %s',
-                                   (start_date, end_date, mobile,))
+                    cursor.execute('UPDATE user_accounts SET name = %s,mobile_no = %s, email = %s,start_date = %s, end_date = %s WHERE mobile_no = %s',
+                                   (name,mobile, email, start_date, end_date, old_mobile_no,))
                     mysql.connection.commit()
                     response['data'] = [{'message':"user subscription date updated"}]
                     response['errorMessage'] = ''

@@ -156,7 +156,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"start_date\":\"2023-04-22\",\r\n    \"end_date\":\"2023-04-23\",\r\n    \"mobile_no\":\"4567435645\"\r\n\r\n}"
+					"raw": "{\r\n    \"name\":\"Swapnilllfgfg\",\r\n    \"old_mobile_no\":\"8765786543\",\r\n    \"mobile_no\":\"4567477777\",\r\n    \"email\":\"swapppy@gmaillll.com\",\r\n    \"start_date\":\"2023-04-22\",\r\n    \"end_date\":\"2023-07-23\"\r\n    \r\n\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/admin/update",
@@ -192,7 +192,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"mobile_no\":\"2023-04-22\",\r\n    \"old_pass\":\"2023-06-23\",\r\n    \"new_pass\":\"8765786543\",\r\n    \"email\":\"dffg@fgm.com\",\r\n    \"name\": \"gajanan\"\r\n}"
+					"raw": "{\r\n    \"old_pass\":\"2023-06-23\",\r\n    \"new_pass\":\"8765786543\",\r\n    \"email\":\"dffg@fgm.com\",\r\n    \"name\": \"gajanan\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/ai_trade/admin/update",
