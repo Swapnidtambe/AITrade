@@ -55,7 +55,6 @@ def login():
             # Show the login form with message (if any)
         return response
 
-
 # http://localhost:5000/python/logout - this will be the logout page
 @app.route('/ai_trade/logout', methods=['POST'])
 def logout():
@@ -68,7 +67,6 @@ def logout():
     response['errorMessage'] = ''
     response['status'] = 'OK'
     return response
-
 
 @app.route('/ai_trade/register', methods=['POST'])
 def register():
@@ -125,7 +123,6 @@ def register():
             response['status'] = 'OK'
             return response
 
-
 # http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
 @app.route('/ai_trade/profile', methods=['GET'])
 def profile():
@@ -175,7 +172,6 @@ def profile():
         response['errorCode'] = '111'
         response['status'] = 'FAIL'
         return response
-
 
 @app.route('/ai_trade/script/gold')
 def xauusd():
@@ -283,6 +279,88 @@ def eurusd():
         response['status'] = 'FAIL'
         return response
 
+@app.route('/ai_trade/user/profile_update', methods=['POST'])
+def profile_update():
+    if request.method == 'POST':
+        data = request.get_json()
+        # Create variables for easy access
+        name = data['name']
+        old_pass = data['old_pass']
+        new_pass = data['new_pass']
+        email = data['email']
+
+        response = {}
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            response["data"] = ''
+            response['errorMessage'] = 'Authorization header is missing'
+            response['errorCode'] = '107'
+            response['status'] = 'FAIL'
+            return response
+        parts = auth_header.split()
+        if parts[0].lower() != 'bearer':
+            response["data"] = ''
+            response['errorMessage'] = 'Invalid token format'
+            response['errorCode'] = '108'
+            response['status'] = 'FAIL'
+            return response
+        token = parts[1]
+        if token in blacklist:
+            response["data"] = ''
+            response['errorMessage'] = 'Token has been logged out'
+            response['errorCode'] = '109'
+            response['status'] = 'FAIL'
+            return response
+        try:
+            payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
+            mobile_no = payload['mobile_no']
+            # We need all the account info for the user so we can display it on the profile page
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT * FROM user_accounts WHERE mobile_no = %s', (mobile_no,))
+            account = cursor.fetchone()
+            password = account['password']
+            if password == old_pass:
+                try:
+                    query = "UPDATE user_accounts SET "
+                    fields = []
+                    if name:
+                        fields.append(f"name = '{name}'")
+                    if password:
+                        fields.append(f"password = '{new_pass}'")
+                    if email:
+                        fields.append(f"email = '{email}'")
+
+                    query += ", ".join(fields)
+                    query += f" WHERE mobile_no = {mobile_no}"
+                    # Execute the SQL query
+                    cursor = mysql.connection.cursor()
+                    cursor.execute(query)
+                    mysql.connection.commit()
+
+                    response['data'] = [{'message':"user profile updated"}]
+                    response['errorMessage'] = ''
+                    response['errorCode'] = ''
+                    response['status'] = 'OK'
+                    return response
+                except:
+                    response['data'] = ""
+                    response['errorMessage'] = 'user profile not updated'
+                    response['errorCode'] = '113'
+                    response['status'] = 'FAIL'
+                    return response
+
+        except jwt.ExpiredSignatureError:
+            response['data'] = ''
+            response['errorMessage'] = 'Token has expired'
+            response['errorCode'] = '110'
+            response['status'] = 'FAIL'
+            return response
+        except jwt.InvalidTokenError:
+            response['data'] = ''
+            response['errorMessage'] = 'Invalid token'
+            response['errorCode'] = '111'
+            response['status'] = 'FAIL'
+            return response
 
 @app.route('/ai_trade/admin/update', methods=['POST'])
 def admin():
@@ -291,12 +369,12 @@ def admin():
         data = request.get_json()
         # Create variables for easy access
         name = data['name']
+        user_pass = data['password']
         old_mobile_no = data['old_mobile_no']
         mobile = data['mobile_no']
         email = data['email']
         start_date = data['start_date']
         end_date = data['end_date']
-
 
         auth_header = request.headers.get('Authorization')
         if not auth_header:
@@ -331,17 +409,36 @@ def admin():
             pas = account["password"]
             if mobile_no == '9527701111' and pas == 'Swappy969696':
                 try:
-                    cursor.execute('UPDATE user_accounts SET name = %s,mobile_no = %s, email = %s,start_date = %s, end_date = %s WHERE mobile_no = %s',
-                                   (name,mobile, email, start_date, end_date, old_mobile_no,))
+                    query = "UPDATE user_accounts SET "
+                    fields = []
+                    if name:
+                        fields.append(f"name = '{name}'")
+                    if user_pass:
+                        fields.append(f"password = '{user_pass}'")
+                    if email:
+                        fields.append(f"email = '{email}'")
+                    if mobile:
+                        fields.append(f"mobile_no = '{mobile}'")
+                    if start_date:
+                        fields.append(f"start_date = '{start_date}'")
+                    if end_date:
+                        fields.append(f"end_date = '{end_date}'")
+
+                    query += ", ".join(fields)
+                    query += f" WHERE mobile_no = {old_mobile_no}"
+
+                    # Execute the SQL query
+                    cursor = mysql.connection.cursor()
+                    cursor.execute(query)
                     mysql.connection.commit()
-                    response['data'] = [{'message':"user subscription date updated"}]
+                    response['data'] = [{'message':"user profile updated"}]
                     response['errorMessage'] = ''
                     response['errorCode'] = ''
                     response['status'] = 'OK'
                     return response
                 except:
                     response['data'] = ""
-                    response['errorMessage'] = 'subscription not updated'
+                    response['errorMessage'] = 'user profile not updated'
                     response['errorCode'] = '113'
                     response['status'] = 'FAIL'
                     return response
