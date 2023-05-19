@@ -325,7 +325,7 @@ def profile_update():
                     fields = []
                     if name:
                         fields.append(f"name = '{name}'")
-                    if password:
+                    if new_pass:
                         fields.append(f"password = '{new_pass}'")
                     if email:
                         fields.append(f"email = '{email}'")
