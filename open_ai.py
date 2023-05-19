@@ -2,7 +2,7 @@ import openai
 def predict_trend():
     from forex_news_list import news_list
     news_list = news_list()
-    openai.api_key = "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"
+    openai.api_key = "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"
     model_engine = "text-davinci-002"
     prompt = (f"Given the following forex related news articles with time :\n\n"
               f"{news_list}\n\n"

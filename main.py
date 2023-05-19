@@ -5,7 +5,9 @@ import re
 from app_property import AppProperty
 import jwt
 import datetime
-
+import logging
+# Configure logging
+logging.basicConfig(filename='app.log', level=logging.INFO)
 from config import Config
 app_property = AppProperty()
 app = Flask(__name__)
@@ -26,6 +28,7 @@ def login():
     response = {}
     # Check if "username" and "password" POST requests exist (user submitted form)
     if request.method == 'POST':
+        logging.info(f"Received login request: {request.get_json()}")
         # Create variables for easy access
         data = request.get_json()
         mobile_no = data['mobile_no']
@@ -43,7 +46,9 @@ def login():
             response['errorCode'] = ''
             response['errorMessage'] = ''
             response['status'] = 'OK'
-            # Redirect to home page
+            # Logging the response
+            logging.info(f"Login response: {response}")
+
             return response
         else:
             # Account doesnt exist or username/password incorrect
@@ -52,12 +57,14 @@ def login():
             response['errorCode'] = '101'
             response['errorMessage'] = msg
             response['status'] = 'FAIL'
+            logging.info(f"Login response: {response}")
             # Show the login form with message (if any)
         return response
 
 # http://localhost:5000/python/logout - this will be the logout page
 @app.route('/ai_trade/logout', methods=['POST'])
 def logout():
+    logging.info(f"Received logout request: {request.get_json()}")
     response = {}
     data = request.get_json()
     token = data['token']
@@ -74,6 +81,7 @@ def register():
     # Check if "username", "password" and "email" POST requests exist (user submitted form)
     if request.method == 'POST':
         data = request.get_json()
+        logging.info(f"Received register request: {data}")
         # Create variables for easy access
         name = data['name']
         password = data['password']
