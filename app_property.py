@@ -13,9 +13,10 @@ class AppProperty:
                         '111': 'Invalid token',
                         '112': 'Subscription Expired',
                         '113': 'subscription not updated',
-
-
-
+                        '114': 'Token not received',
+                        '115': 'Password is not correct',
+                        '116': 'user profile not updated',
+                        '117': 'You have no admin authorization',
 
                         }
 

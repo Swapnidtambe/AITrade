@@ -1,40 +1,12 @@
-INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://192.168.0.103:5000
-INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\app_property.py', reloading
 INFO:werkzeug: * Restarting with watchdog (windowsapi)
 WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 602-692-434
-INFO:root:Received login request: {'mobile_no': '4567435645', 'password': 'Swap'}
-INFO:root:Login response: {'data': [{'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGVfbm8iOiI0NTY3NDM1NjQ1IiwicGFzc3dvcmQiOiJTd2FwIiwiZXhwIjoxNjg0NjEyNzczfQ.gJ5BmeOpwWZ2ik03x1iuqE9M6eKHtL1nu1iwC3PYWWY'}], 'errorCode': '', 'errorMessage': '', 'status': 'OK'}
-INFO:werkzeug:127.0.0.1 - - [20/May/2023 01:29:33] "POST /ai_trade/login/ HTTP/1.1" 200 -
-INFO:root:Received login request: {'mobile_no': '4567435645', 'password': 'Swap'}
-INFO:root:Login response: {'data': [{'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGVfbm8iOiI0NTY3NDM1NjQ1IiwicGFzc3dvcmQiOiJTd2FwIiwiZXhwIjoxNjg0NjEyODY0fQ.Ob1smhUq0Ko_dmdDuQv4AZ03aIyZ2S-p0XsZyUsD2BY'}], 'errorCode': '', 'errorMessage': '', 'status': 'OK'}
-INFO:werkzeug:127.0.0.1 - - [20/May/2023 01:31:04] "POST /ai_trade/login/ HTTP/1.1" 200 -
-INFO:root:Received login request: {'mobile_no': '4567435645', 'password': 'Swapp'}
-INFO:root:Login response: {'data': '', 'errorCode': '101', 'errorMessage': 'Incorrect username/password!', 'status': 'FAIL'}
-INFO:werkzeug:127.0.0.1 - - [20/May/2023 01:31:18] "POST /ai_trade/login/ HTTP/1.1" 200 -
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
+INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\error_response.py', reloading
 INFO:werkzeug: * Restarting with watchdog (windowsapi)
 WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 602-692-434
-INFO:root:Received login request: {'mobile_no': '4567435645', 'password': 'Swap'}
-INFO:root:Login response: {'data': [{'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGVfbm8iOiI0NTY3NDM1NjQ1IiwicGFzc3dvcmQiOiJTd2FwIiwiZXhwIjoxNjg0NjEzMTUyfQ.bY22pdHBjdDGggRCXBlMPY5p1OUNjNTDwv1e_Q5S76A'}], 'errorCode': '', 'errorMessage': '', 'status': 'OK'}
-INFO:werkzeug:127.0.0.1 - - [20/May/2023 01:35:52] "POST /ai_trade/login/ HTTP/1.1" 200 -
-INFO:root:Received logout request: {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGVfbm8iOiI0NTY3NDM1NjQ1IiwicGFzc3dvcmQiOiJTd2FwIiwiZXhwIjoxNjg0NjEzMTUyfQ.bY22pdHBjdDGggRCXBlMPY5p1OUNjNTDwv1e_Q5S76A'}
-INFO:werkzeug:127.0.0.1 - - [20/May/2023 01:36:21] "POST /ai_trade/logout HTTP/1.1" 200 -
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
-INFO:werkzeug: * Restarting with watchdog (windowsapi)
-WARNING:werkzeug: * Debugger is active!
-INFO:werkzeug: * Debugger PIN: 602-692-434
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
-INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\main.py', reloading
+INFO:werkzeug: * Detected change in 'G:\\git\\AITrade\\sql_connection.py', reloading
 INFO:werkzeug: * Restarting with watchdog (windowsapi)
 WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 602-692-434
