@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS `AItrade` DEFAULT CHARACTER SET utf8 COLLATE utf8_
 USE `AItrade`;
 
 CREATE TABLE IF NOT EXISTS `user_accounts` (
-  ``id` int NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `email` varchar(100) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE summary (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
 INSERT INTO `summary` (`id`, `currency`, `summary`) VALUES (1, 'GOLD', 'The trend of the Gold price is not both.');
 
-INSERT INTO `user_accounts` (`id`, `name`, `password`, `email`,`mobile_no`,'start_date','end_date') VALUES (1, 'test', 'test', 'test@test.com','9854675467','2023-04-22','2023-06-23');
+INSERT INTO `user_accounts` (`id`, `name`, `password`, `email`,`mobile_no`,`start_date`,`end_date`) VALUES (1, 'test', 'test', 'test@test.com','9854675467','2023-04-22','2023-06-23');
 INSERT INTO `user_accounts` (`id`, `name`, `password`, `email`,`mobile_no`) VALUES (2, 'swapnil', 'Swappy969696', 'admin@test.com','9855674523');
 
 
