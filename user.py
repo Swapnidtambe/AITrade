@@ -142,7 +142,7 @@ def User_script_gold(connection,data):
             cursor = connection.cursor(buffered=True)
             cursor.execute('SELECT summary FROM summary WHERE id = %s', ('1',))
             summary  = cursor.fetchone()
-            response['data'] = [{"signal":'signal',"time":'time',"summury": summary}]
+            response['data'] = [{"signal":'signal',"time":'time',"summury": summary[0]}]
             response['errorMessage'] = ''
             response['errorCode'] = ''
             response['status'] = 'OK'
