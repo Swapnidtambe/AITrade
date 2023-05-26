@@ -140,9 +140,9 @@ def User_script_gold(connection,data):
             return error_response.Subscription_Expired()
         else:
             cursor = connection.cursor(buffered=True)
-            cursor.execute('SELECT summary FROM summary WHERE currency = %s', ('GOLD',))
-            summury = cursor.fetchone()
-            response['data'] = [{"signal":'signal',"time":'time',"summury": summury}]
+            cursor.execute('SELECT summary FROM summary WHERE id = %s', ('1',))
+            summary  = cursor.fetchone()
+            response['data'] = [{"signal":'signal',"time":'time',"summury": summary}]
             response['errorMessage'] = ''
             response['errorCode'] = ''
             response['status'] = 'OK'
