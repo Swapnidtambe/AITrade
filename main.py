@@ -1,5 +1,6 @@
 from flask import Flask, request
 from sql_connection import get_sql_connection
+from cron_job import scheduler
 app = Flask(__name__)
 connection = get_sql_connection()
 blacklist = set()
@@ -62,6 +63,26 @@ def admin():
         data = request.get_json()
         header = request.headers.get('Authorization')
         return user.Admin_user_update(connection,data,header)
+
+@app.route('/ai_trade/admin/get_gold_data', methods=['POST'])
+def get_gold_data():
+    cursor = connection.cursor(buffered=True)
+    cursor.execute('SELECT * FROM summary WHERE id = %s', ('1',))
+    data = cursor.fetchone()
+    summary = data[2]
+    return summary
+
+@app.route('/ai_trade/script/gold')
+def xauusd_data():
+    data = request.headers.get('Authorization')
+    return user.User_script_gold(connection,data)
+
+@app.route('/ai_trade/script/gold/history', methods=['POST'])
+def xauusd_history():
+    if request.method == 'POST':
+        data = request.get_json()
+        header = request.headers.get('Authorization')
+        return user.User_script_gold_history(connection,data,header)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

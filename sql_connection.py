@@ -1,4 +1,4 @@
-import datetime
+
 import mysql.connector
 
 __cnx = None
@@ -11,4 +11,3 @@ def get_sql_connection():
     __cnx = mysql.connector.connect(user='root', password='Sw@ppy969696', database='aitrade')
 
   return __cnx
-

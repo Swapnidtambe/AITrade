@@ -10,6 +10,15 @@ app_property = AppProperty()
 import error_response
 from main import blacklist
 import re
+import datetime
+import json
+
+# Custom serializer function to handle timedelta objects
+def custom_serializer(obj):
+    if isinstance(obj, datetime.timedelta):
+        return str(obj)
+    raise TypeError("Object of type {} is not JSON serializable".format(type(obj)))
+
 
 
 def user_login(connection,data):
@@ -29,6 +38,7 @@ def user_login(connection,data):
         response['errorCode'] = ''
         response['errorMessage'] = ''
         response['status'] = 'OK'
+        connection.commit()
         # Logging the response
         logging.info(f"Login response: {response}")
         return response
@@ -78,6 +88,7 @@ def user_register(connection,data):
         data = (name, password, email, mobile)
         cursor.execute(query, data)
         connection.commit()
+
         response['data'] = [{'message': 'You have successfully registered!'}]
         response['errorMessage'] = ''
         response['errorCode'] = ''
@@ -109,6 +120,7 @@ def User_profile(connection,data):
         response['errorMessage'] = ''
         response['errorCode'] = ''
         response['status'] = 'OK'
+        connection.commit()
         return response
     except jwt.ExpiredSignatureError:
         return error_response.Token_has_expired()
@@ -140,13 +152,68 @@ def User_script_gold(connection,data):
             return error_response.Subscription_Expired()
         else:
             cursor = connection.cursor(buffered=True)
-            cursor.execute('SELECT summary FROM summary WHERE id = %s', ('1',))
-            summary  = cursor.fetchone()
-            response['data'] = [{"signal":'signal',"time":'time',"summury": summary[0]}]
+            cursor.execute("SELECT * FROM summary ORDER BY id DESC LIMIT 1")
+            data  = cursor.fetchone()
+            summary = data[2]
+            time = str(data[3])
+
+            signal = "NO TRADE"
+            if "bullish" in summary:
+                signal =  "BUY"
+            elif "bearish" in summary:
+                signal =  "SELL"
+            response['data'] = [{"signal":signal,"time":time,"summary": summary}]
             response['errorMessage'] = ''
             response['errorCode'] = ''
             response['status'] = 'OK'
+            connection.commit()
             return response
+    except jwt.ExpiredSignatureError:
+        return error_response.Token_has_expired()
+    except jwt.InvalidTokenError:
+        return error_response.Invalid_token()
+
+def User_script_gold_history(connection,data,header):
+    from_date = data['from_date']
+    to_date = data['to_date']
+
+    response = {}
+    if not header:
+        return error_response.Authorization_header_is_missing()
+    parts = header.split()
+    if parts[0].lower() != 'bearer':
+        return error_response.Invalid_token_format()
+    try:
+        token = parts[1]
+        if token in blacklist:
+            return error_response.Token_logged_out()
+    except:
+        return error_response.Token_not_received()
+    try:
+
+        cursor = connection.cursor(buffered=True)
+        query = "SELECT time, Date, summary, `signal` FROM summary WHERE Date BETWEEN %s AND %s"
+        cursor.execute(query, (from_date, to_date))
+        result = cursor.fetchall()
+        data = []
+        for row in result:
+            time, Date, summary, signal = row
+            data.append({
+                'time': time,
+                'date': Date.strftime('%d-%m-%Y'),
+                'summary': summary,
+                'signal': signal,
+            })
+        response['data'] = data
+        response['errorMessage'] = ''
+        response['errorCode'] = ''
+        response['status'] = 'OK'
+
+        # Use custom serializer to handle timedelta objects
+        response_json = json.dumps(response, default=custom_serializer)
+
+        connection.commit()
+        return response_json
     except jwt.ExpiredSignatureError:
         return error_response.Token_has_expired()
     except jwt.InvalidTokenError:
@@ -176,25 +243,30 @@ def User_script_euro(connection,data):
         if end_date is None or end_date <= datetime.date.today():
             return error_response.Subscription_Expired()
         else:
-            cursor.execute('SELECT summary FROM summary WHERE currency = %s', ('EURO',))
-            summury = cursor.fetchone()
-            response['data'] = [{"signal":'signal',"time":'time',"summury": summury}]
+            cursor = connection.cursor(buffered=True)
+            cursor.execute('SELECT summary FROM summary WHERE id = %s', ('2',))
+            summary = cursor.fetchone()
+
+            signal = "NO TRADE"
+            if "bullish" in summary[0]:
+                signal = "BUY"
+            elif "bearish" in summary[0]:
+                signal = "SELL"
+            time = "8:00"
+            response['data'] = [{"signal": signal, "time": time, "summary": summary[0]}]
             response['errorMessage'] = ''
             response['errorCode'] = ''
             response['status'] = 'OK'
+            connection.commit()
             return response
     except jwt.ExpiredSignatureError:
         return error_response.Token_has_expired()
     except jwt.InvalidTokenError:
         return error_response.Invalid_token()
 
-def User_profile_update(connection,data,header):
+def Admin_nse_update(connection,data,header):
     response = {}
-    name = data['name']
-    old_pass = data['old_pass']
-    new_pass = data['new_pass']
-    email = data['email']
-
+    summary = data['summary']
     if not header:
         return error_response.Authorization_header_is_missing()
     parts = header.split()
@@ -209,30 +281,28 @@ def User_profile_update(connection,data,header):
     try:
         payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
         mobile_no = payload['mobile_no']
+        password = payload['password']
         # We need all the account info for the user so we can display it on the profile page
         cursor = connection.cursor(buffered=True)
-        cursor.execute('SELECT * FROM user_accounts WHERE mobile_no = %s', (mobile_no,))
+        cursor.execute('SELECT * FROM user_accounts WHERE mobile_no = %s and password = %s', (mobile_no, password,))
         account = cursor.fetchone()
-        password = account[2]
-        if password == old_pass:
+        mobile_no = account[6]
+        pas = account[2]
+        if mobile_no == '9527701111' and pas == 'Swappy969696':
             try:
-                query = "UPDATE user_accounts SET "
+                query = "UPDATE summary SET "
                 fields = []
-                if name:
-                    fields.append(f"name = '{name}'")
-                if new_pass:
-                    fields.append(f"password = '{new_pass}'")
-                if email:
-                    fields.append(f"email = '{email}'")
+                if summary:
+                    fields.append(f"summary = '{summary}'")
 
                 query += ", ".join(fields)
-                query += f" WHERE mobile_no = {mobile_no}"
+                query += f" WHERE id = {2}"
+
                 # Execute the SQL query
                 cursor = connection.cursor(buffered=True)
                 cursor.execute(query)
                 connection.commit()
-
-                response['data'] = [{'message': "user profile updated"}]
+                response['data'] = [{'message': "NSE summury updated"}]
                 response['errorMessage'] = ''
                 response['errorCode'] = ''
                 response['status'] = 'OK'
@@ -240,11 +310,12 @@ def User_profile_update(connection,data,header):
             except:
                 return error_response.User_profile_not_updated()
         else:
-            return error_response.Password_not_correct()
+            return error_response.No_admin_authorization()
     except jwt.ExpiredSignatureError:
         return error_response.Token_has_expired()
     except jwt.InvalidTokenError:
         return error_response.Invalid_token()
+
 
 def Admin_user_update(connection,data,header):
     response = {}
