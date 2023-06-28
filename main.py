@@ -1,6 +1,6 @@
 from flask import Flask, request
 from sql_connection import get_sql_connection
-from cron_job import scheduler
+from cron_job import schedul
 app = Flask(__name__)
 connection = get_sql_connection()
 blacklist = set()
@@ -85,4 +85,5 @@ def xauusd_history():
         return user.User_script_gold_history(connection,data,header)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    scheduler = schedul()
+    app.run(host='0.0.0.0', port=8080, debug=True)
