@@ -65,6 +65,7 @@ def user_register(connection,data):
     password = data['password']
     email = data['email']
     mobile = data['mobile']
+    referral = data['referral']
     # Check if account exists using MySQL
     cursor = connection.cursor(buffered=True)
     cursor.execute('SELECT * FROM user_accounts WHERE mobile_no = %s', (mobile,))
@@ -84,8 +85,8 @@ def user_register(connection,data):
 
     else:
         # Account doesnt exists and the form data is valid, now insert new account into accounts table
-        query = ('INSERT INTO user_accounts VALUES (NULL, %s, %s, %s,NULL,NULL, %s)')
-        data = (name, password, email, mobile)
+        query = ('INSERT INTO user_accounts VALUES (NULL, %s, %s, %s,NULL,NULL, %s,%s)')
+        data = (name, password, email, mobile,referral)
         cursor.execute(query, data)
         connection.commit()
 
