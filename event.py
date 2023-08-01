@@ -31,7 +31,6 @@ def event_data():
 
         return driver
 
-
     def parse_data(driver, url):
         driver.get(url)
 
@@ -46,12 +45,16 @@ def event_data():
                     date_str = row_data.pop(0).replace('\n', ' - ')
                     print(f'Date: {date_str}')
 
-
-                # Add error handling for index out of range
+                # Check if the time is "All Day"
                 if len(row_data) >= 6:
+                    if row_data[0].strip().lower() == 'all day':
+                        time_str = '00:00 AM'  # Set a default time value for "All Day"
+                    else:
+                        time_str = row_data[0]
+
                     data_rows.append({
                         'Date': date_str,
-                        'Time': row_data[0],
+                        'Time': time_str,
                         'Currency': row_data[1],
                         'Event': row_data[2],
                         'Actual': row_data[3],
@@ -60,27 +63,25 @@ def event_data():
                     })
 
         df = pd.DataFrame(data_rows)
-        current_year = datetime.datetime.now().year
-        df['Datetime'] = pd.to_datetime(df['Date'] + ' ' + df['Time'], format='%a - %b %d %I:%M%p')
-        df.set_index('Datetime', inplace=True)
-        df.drop(['Date', 'Time'], axis=1, inplace=True)
-        df.index = df.index.map(lambda x: x.replace(year=2023))
-
+        #         current_year = datetime.datetime.now().year
+        #         df['Datetime'] = pd.to_datetime(df['Date'] + ' ' + df['Time'], format='%a - %b %d %I:%M%p')
+        #         df.set_index('Datetime', inplace=True)
+        #         df.drop(['Date', 'Time'], axis=1, inplace=True)
+        #         df.index = df.index.map(lambda x: x.replace(year=2023))
 
         return df
 
-
-    url = ['https://www.forexfactory.com/calendar?week=last','https://www.forexfactory.com/calendar?week=this']
+    url = ['https://www.forexfactory.com/calendar?week=last', 'https://www.forexfactory.com/calendar?week=this']
     df = pd.DataFrame()
     for i in url:
         driver = create_driver()
         new_df = parse_data(driver=driver, url=i)
-        df = pd.concat([df,new_df])
-        df = df[df['Currency'] == 'USD']
-        df.reset_index(inplace=True)
-        df['Datetime'] = df['Datetime'].astype(str)
-
+        df = pd.concat([df, new_df])
+    #     df = df[df['Currency'] == 'USD']
+    #     df.reset_index(inplace=True)
+    #         df['Datetime'] = df['Datetime'].astype(str)
 
     event_data = df.to_json(orient='records')
     return event_data
+
 

@@ -385,3 +385,68 @@ def Admin_user_update(connection,data,header):
         return error_response.Token_has_expired()
     except jwt.InvalidTokenError:
         return error_response.Invalid_token()
+
+def User_profile_update(connection,data,header):
+    response = {}
+    user_old_pass = data['old_pass']
+    user_new_pass = data['new_pass']
+    email = data['email']
+    name = data['name']
+    if not header:
+        return error_response.Authorization_header_is_missing()
+    parts = header.split()
+    if parts[0].lower() != 'bearer':
+        return error_response.Invalid_token_format()
+    try:
+        token = parts[1]
+        if token in blacklist:
+            return error_response.Token_logged_out()
+    except:
+        return error_response.Token_not_received()
+    try:
+        payload = jwt.decode(token, 'my_secret_key', algorithms='HS256')
+        mobile_no = payload['mobile_no']
+        password = payload['password']
+        # We need all the account info for the user so we can display it on the profile page
+        cursor = connection.cursor(buffered=True)
+        cursor.execute('SELECT * FROM user_accounts WHERE mobile_no = %s and password = %s', (mobile_no, password,))
+        account = cursor.fetchone()
+        mobile_no = account[6]
+        pas = account[2]
+        if pas == user_old_pass:
+            try:
+                query = "UPDATE user_accounts SET "
+                fields = []
+                if name:
+                    fields.append(f"name = '{name}'")
+                if user_new_pass:
+                    fields.append(f"password = '{user_new_pass}'")
+                if email:
+                    fields.append(f"email = '{email}'")
+                # if mobile:
+                #     fields.append(f"mobile_no = '{mobile}'")
+                # if start_date:
+                #     fields.append(f"start_date = '{start_date}'")
+                # if end_date:
+                #     fields.append(f"end_date = '{end_date}'")
+
+                query += ", ".join(fields)
+                query += f" WHERE mobile_no = {mobile_no}"
+
+                # Execute the SQL query
+                cursor = connection.cursor(buffered=True)
+                cursor.execute(query)
+                connection.commit()
+                response['data'] = [{'message': "user profile updated"}]
+                response['errorMessage'] = ''
+                response['errorCode'] = ''
+                response['status'] = 'OK'
+                return response
+            except:
+                return error_response.User_profile_not_updated()
+        else:
+            return error_response.No_admin_authorization()
+    except jwt.ExpiredSignatureError:
+        return error_response.Token_has_expired()
+    except jwt.InvalidTokenError:
+        return error_response.Invalid_token()

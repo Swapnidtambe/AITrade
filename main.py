@@ -1,6 +1,7 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from sql_connection import get_sql_connection
-from cron_job import schedul
+from apscheduler.schedulers.background import BackgroundScheduler
+from cron_job import store_data
 app = Flask(__name__)
 connection = get_sql_connection()
 blacklist = set()
@@ -10,6 +11,25 @@ import user
 import datetime
 app.config['JWT_EXPIRATION_DELTA'] = datetime.timedelta(days=1)
 
+scheduler = BackgroundScheduler(daemon=True)
+scheduler.add_job(store_data, 'interval', minutes=30)
+@app.before_first_request
+def initialize_scheduler():
+    # Start the scheduler when the first request is processed
+    scheduler.start()
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/terms_conditions')
+def terms_conditions():
+    return render_template('terms-conditions.html')
+
+@app.route('/privacy_policy')
+def privacy_policy():
+    return render_template('privacy-policy.html')
+
 @app.route('/ai_trade/login/', methods=['POST'])
 def login():
     response = {}
@@ -18,6 +38,7 @@ def login():
         # Create variables for easy access
         data = request.get_json()
         return user.user_login(connection,data)
+
 
 @app.route('/ai_trade/logout', methods=['POST'])
 def logout():
@@ -85,5 +106,5 @@ def xauusd_history():
         return user.User_script_gold_history(connection,data,header)
 
 if __name__ == "__main__":
-    scheduler = schedul()
+
     app.run(host='0.0.0.0', port=8080, debug=True)

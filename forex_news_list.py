@@ -91,3 +91,4 @@ def news_list():
     df['Datetime'] = df['Datetime'].astype(str)
     json_data = df.to_json(orient='records')
     return json_data
+
